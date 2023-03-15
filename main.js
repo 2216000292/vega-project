@@ -290,26 +290,26 @@ var startY, startHeight;
           view.signal("width",curr_width);
           view.signal("height",curr_height);
           
-          view.addEventListener('mouseover', (event, item) => {
-            const itemInfo = document.getElementById('item-info');
-            if (item) {
-                // let arr = item.mark.source.value;
-                // let content = "";
-                // for (let i = 0; i < arr.length; i++) {
-                //   content += JSON.stringify(arr[i].datum, null, 2) + "\n";
-                // }
-                // itemInfo.innerText = content;
-                let arr = item.mark.source.value;
-                let html = "<table><tr><th>X</th><th>Y</th><th>C</th></tr>";
-                arr.forEach(d => {
-                  html += `<tr><td>${d.datum.x}</td><td>${d.datum.y}</td><td>${d.datum.c}</td></tr>`;
-                });
-                html += "</table>";
-                itemInfo.innerHTML = html;
+//           view.addEventListener('mouseover', (event, item) => {
+//             const itemInfo = document.getElementById('item-info');
+//             if (item) {
+//                 // let arr = item.mark.source.value;
+//                 // let content = "";
+//                 // for (let i = 0; i < arr.length; i++) {
+//                 //   content += JSON.stringify(arr[i].datum, null, 2) + "\n";
+//                 // }
+//                 // itemInfo.innerText = content;
+//                 let arr = item.mark.source.value;
+//                 let html = "<table><tr><th>X</th><th>Y</th><th>C</th></tr>";
+//                 arr.forEach(d => {
+//                   html += `<tr><td>${d.datum.x}</td><td>${d.datum.y}</td><td>${d.datum.c}</td></tr>`;
+//                 });
+//                 html += "</table>";
+//                 itemInfo.innerHTML = html;
 
                 
-              };
-          });
+//               };
+          // });
 
               
     
