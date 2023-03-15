@@ -1,0 +1,90 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "A basic bar chart example, with value labels shown upon mouse hover.",
+    "width": 400,
+    "height": 200,
+    "padding": 5,
+  
+    "data": [
+      {
+        "name": "table",
+        "values":  [
+        {"category": "B", "amount": 33},
+        {"category": "D", "amount": 55},
+        {"category": "E", "amount": 81},
+        {"category": "F", "amount": 53},
+        {"category": "G", "amount": 19},
+        {"category": "A", "amount": 22},
+        {"category": "C", "amount": 44},
+        {"category": "H", "amount": 87}    
+]
+      }
+    ],
+  
+    "signals": [
+      {
+        "name": "tooltip",
+        "value": {},
+        "on": [
+          {"events": "rect:mouseover", "update": "datum"},
+          {"events": "rect:mouseout",  "update": "{}"}
+        ]
+      },
+      {
+        "name": "fillColor",
+        "value": "steelblue"
+      },
+      {
+        "name": "xAxis",
+        "value" : ""
+      },
+      {
+        "name": "yAxis",
+        "value": ""
+      }
+    ],
+  
+    "scales": [
+      {
+        "name": "xscale",
+        "type": "band",
+        "domain": {"data": "table", "field":  {"signal": "xAxis"}},
+        "range": "width",
+        "padding": 0.05,
+        "round": true
+      },
+      {
+        "name": "yscale",
+        "domain": {"data": "table", "field":  {"signal": "yAxis"}},
+        "nice": true,
+        "range": "height"
+      }
+    ],
+  
+    "axes": [
+      { "orient": "bottom", "scale": "xscale" },
+      { "orient": "left", "scale": "yscale" }
+    ],
+  
+    "marks": [
+      {
+        "type": "rect",
+        "from": {"data":"table"},
+        "encode": {
+          "enter": {
+            "x": {"scale": "xscale", "field":   {"signal": "xAxis"}},
+            "width": {"scale": "xscale", "band": 1},
+            "y": {"scale": "yscale", "field":   {"signal": "yAxis"}},
+            "y2": {"scale": "yscale", "value": 0}
+          },
+          "update": {
+            "fill": {"signal": "fillColor"}
+          }
+          ,
+          "hover": {
+            "fill": {"value": "red"}
+          }
+        }
+      }
+    ]
+  }

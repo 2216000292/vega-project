@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+
+
+<div class="container">
+  <div class="sidebar" id="sidebar">
+	<form id="my-form" >
+
+      <div id="ember29" class="ace-editor-container ember-view ui-resizable" style="height: 150px;">        
+        <textarea id="ember30" name="myInput" class="ember-text-area ember-view accessible-editor resizable" aria-label="Enter your code here." spellcheck="false"></textarea>
+
+      
+      </div>
+     
+      <div class="ui-resizable-handle ui-resizable-s" ></div>
+    
+      <div class="control-graph">
+          <label for="chart-type">Chart type:</label>
+          <select name="chart-type" id="chart-type">
+            <option value="none">None</option>
+            <option value="bar-chart">Bar Chart</option>
+            <option value="line-chart">Line Chart</option>
+            <option value="multiple-line-chart">Multiple Line Chart</option>
+          </select>
+        
+
+
+        <!-- <div class="modify-domain">
+          
+          <label for="domain-min" class="label-y-min" >y-min</label>
+          <input type="text" id="domain" name="domain-min" placeholder="0">
+          
+          <label for="domain-max">y-max</label>
+          <input type="text" id="domain" name="domain-max" placeholder="100">
+        </div>  -->
+
+        <div class="button">
+          <button type="submit">Submit</button>
+        </div>
+
+      </div>
+
+
+	</form>
+  </div>
+
+  <div class="resizer"></div>
+
+	<div class="content" id="content">
+		<div id="vis"></div>
+    <div id="item-info"></div>
+	</div>
+	
+</div> 
+
+<body>
+  
+  <!-- <script src="https://cdn.jsdelivr.net/npm//vega@3.3.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm//vega-lite@2.4.3"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.6.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.21.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-tooltip@0.30.1"></script>
+
+
+  <script src="main.js">
+  </script>
+</body>

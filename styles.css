@@ -1,0 +1,213 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+}
+.sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: #f2f2f2;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 300px;
+  height: 100%;
+  overflow-y: scroll;
+}
+.sidebar #graph-data {
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+#domain {
+  width: 50px; /* set the width of the input box to 200 pixels */
+  height: 20px; /* set the height of the input box to 30 pixels */
+  padding-right: 40px;
+}
+
+.sidebar .modify-domain{
+  display: inline-flex;
+  margin-bottom: 10px;
+  padding-top: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  align-items: center;
+}
+
+.sidebar .button {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  flex: 1;
+  background-color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+
+button {
+  background-color: #fefcfc;
+  border: 1px solid rgb(209,213,219);
+  border-radius: .5rem;
+  color: #111827;
+  font-family: ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: .50rem 1rem;
+  text-align: center;
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+}
+
+button:hover {
+  background-color: #f9fafb;
+}
+
+button:focus {
+  outline: 2px solid rgba(0,0,0,0.1);
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+
+
+.resizer {
+  width: 10px;
+  cursor: col-resize;
+  height: 100%;
+  background-color: #c2d3c97f;
+}
+
+
+/* #con {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  width: 300px;
+  margin: 20px auto;
+}
+
+
+#left {
+  flex-grow: 1;
+  width: 100%;
+  background-color: #ccc;
+  overflow: hidden;
+}
+
+#right {
+  flex-grow: 1;
+  width: 100%;
+  background-color: #999;
+}
+
+#splitter {
+  height: 10px;
+  width: 100%;
+  background-color: #555;
+  cursor: row-resize;
+}
+
+textarea{
+  width:100%;
+  height:100%;
+  resize:none;
+} */
+
+
+.control-graph{
+  width: 100%;
+  position: relative;
+  overflow-x:hidden;
+}
+
+.ace-editor-container {
+  max-height: 1200px;
+  max-width: 100%;
+  min-height: 150px;
+  position: relative;
+  width: 100%;
+
+}
+
+
+.ace-editor-container .accessible-editor.resizable  {
+  bottom: 16px;
+}
+
+.ace-editor-container .accessible-editor  {
+  resize: vertical;
+}
+
+.ace-editor-container .accessible-editor {
+  font-family: "Courier New",monospace;
+  width: 100%;
+}
+
+.ace-editor-container .accessible-editor {
+  bottom: 0;
+  left: 0;
+  min-height: 150px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+}
+
+
+
+.ui-resizable-s {
+  cursor: s-resize;
+  
+  width: 100%;
+  bottom: -5px;
+  left: 0;
+}
+
+.ui-resizable-handle {
+  top:0;
+  position: relative;
+  margin-bottom: 10px;
+  font-size: .1px;
+  display: block;
+  height: 10px;
+  background-color: rgba(218, 216, 216, 0.727);
+}
+
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  white-space: wrap;
+}
