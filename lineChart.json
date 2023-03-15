@@ -3,7 +3,10 @@
     "description": "A basic line chart example.",
     "width": 500,
     "height": 200,
-    "padding": 5,
+    "autosize": {
+      "type": "fit",
+      "contains": "padding"
+    },
   
     "signals": [
       {
@@ -35,6 +38,22 @@
       {
         "name": "fillColor",
         "value": "pink"
+      },
+      { 
+        "name": "width", 
+        "value": 0,
+        "on": [ { 
+          "events": { "source": "window", "type": "resize" }, 
+          "update": "containerSize()[0]" 
+        } ] 
+      },
+      { 
+        "name": "height", 
+        "value": 0,
+        "on": [ { 
+          "events": { "source": "window", "type": "resize" }, 
+          "update": "containerSize()[1]" 
+        } ] 
       }
     ],
   

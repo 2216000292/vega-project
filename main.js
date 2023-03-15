@@ -249,6 +249,8 @@ var startY, startHeight;
           view.signal('xAxis',xscale);
           view.signal('yAxis',yscale);
           view.height([curr_height]).width([curr_width])
+          view.signal("width",curr_width);
+          view.signal("height",curr_height);
           // view.signal('yAxis',yscale)
           view.runAsync();
       }
@@ -338,6 +340,9 @@ var startY, startHeight;
           
           // const tooltipHandler = new vegaTooltip.Handler().call;
           // console.log(view.tooltip(tooltipHandler));
+          view.signal("width",curr_width);
+          view.signal("height",curr_height);
+
           view.addEventListener('mouseover', (event, item) => {
             if (item && item.datum) {
               const itemInfo = document.getElementById('item-info');

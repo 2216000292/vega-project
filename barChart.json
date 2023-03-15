@@ -24,6 +24,22 @@
     {
       "name": "fillColor",
       "value": "red"
+    },
+    { 
+      "name": "width", 
+      "value": 0,
+      "on": [ { 
+        "events": { "source": "window", "type": "resize" }, 
+        "update": "containerSize()[0]" 
+      } ] 
+    },
+    { 
+      "name": "height", 
+      "value": 0,
+      "on": [ { 
+        "events": { "source": "window", "type": "resize" }, 
+        "update": "containerSize()[1]" 
+      } ] 
     }
   ],
 
