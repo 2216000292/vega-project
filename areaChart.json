@@ -1,0 +1,215 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "Area charts with an interactive overview and filtered detail views.",
+    "width": 720,
+    "height": 540,
+    "autosize": {
+      "type": "fit",
+      "contains": "padding"
+    },
+  
+    "data": [
+      {
+        "name": "chartData",
+        "values": [
+          {"x": 0, "y": 28, "c":0}, {"x": 0, "y": 20, "c":1},
+          {"x": 1, "y": 43, "c":0}, {"x": 1, "y": 35, "c":1},
+          {"x": 2, "y": 81, "c":0}, {"x": 2, "y": 10, "c":1},
+          {"x": 3, "y": 19, "c":0}, {"x": 3, "y": 15, "c":1},
+          {"x": 4, "y": 52, "c":0}, {"x": 4, "y": 48, "c":1},
+          {"x": 5, "y": 24, "c":0}, {"x": 5, "y": 28, "c":1},
+          {"x": 6, "y": 87, "c":0}, {"x": 6, "y": 66, "c":1},
+          {"x": 7, "y": 17, "c":0}, {"x": 7, "y": 27, "c":1},
+          {"x": 8, "y": 68, "c":0}, {"x": 8, "y": 16, "c":1},
+          {"x": 9, "y": 49, "c":0}, {"x": 9, "y": 25, "c":1}
+        ]
+      }
+    ],
+  
+    "signals": [
+      {
+        "name": "detailDomain"
+      },
+      {
+        "name": "graphSize",
+        "value": [540,900]
+      }
+    ],
+  
+    "marks": [
+      {
+        "type": "group",
+        "name": "detail",
+        "encode": {
+          "enter": {
+            "height": {"signal": "graphSize[0]*0.64"},
+            "width": {"value": 720}
+          }
+        },
+        "scales": [
+          {
+            "name": "xDetail",
+            "type": "linear",
+            "range": "width",
+            "domain": {"data": "chartData", "field": "x"},
+            "domainRaw": {"signal": "detailDomain"}
+          },
+          {
+            "name": "yDetail",
+            "type": "linear",
+            "range": [{"signal": "graphSize[0]*0.64"}, 0],
+            "domain": {"data": "chartData", "field": "y"},
+            "nice": true, "zero": true
+          }
+        ],
+        "axes": [
+          {"orient": "bottom", "scale": "xDetail"},
+          {"orient": "left", "scale": "yDetail"}
+        ],
+        "marks": [
+          {
+            "type": "group",
+            "encode": {
+              "enter": {
+                "height": {"field": {"group": "height"}},
+                "width": {"field": {"group": "width"}},
+                "clip": {"value": true}
+              }
+            },
+            "marks": [
+              {
+                "type": "area",
+                "from": {"data": "chartData"},
+                "encode": {
+                  "update": {
+                    "x": {"scale": "xDetail", "field": "x"},
+                    "y": {"scale": "yDetail", "field": "y"},
+                    "y2": {"scale": "yDetail", "value": 0},
+                    "fill": {"value": "steelblue"}
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+  
+      {
+        "type": "group",
+        "name": "overview",
+        "encode": {
+          "enter": {
+            "x": {"value": 0},
+            "y": {"signal": "graphSize[0]*0.64 + graphSize[0]*0.1"},
+            "height": {"signal": "graphSize[0]*(0.36/2)"},
+            "width": {"value": 720},
+            "fill": {"value": "transparent"}
+          }
+        },
+        "signals": [
+          {
+            "name": "brush", "value": 0,
+            "on": [
+              {
+                "events": "@overview:mousedown",
+                "update": "[x(), x()]"
+              },
+              {
+                "events": "[@overview:mousedown, window:mouseup] > window:mousemove!",
+                "update": "[brush[0], clamp(x(), 0, width)]"
+              }
+            ]
+          },
+          {
+            "name": "detailDomain",
+            "push": "outer",
+            "on": [
+              {
+                "events": {"signal": "brush"},
+                "update": "span(brush) ? invert('xOverview', brush) : null"
+              }
+            ]
+          }
+        ],
+        "scales": [
+          {
+            "name": "xOverview",
+            "type": "linear",
+            "range": "width",
+            "domain": {"data": "chartData", "field": "x"}
+          },
+          {
+            "name": "yOverview",
+            "type": "linear",
+            "range": [{"signal": "graphSize[0]*(0.36/2)"}, 0],
+            "domain": {"data": "chartData", "field": "y"},
+            "nice": true, "zero": true
+          }
+        ],
+        "axes": [
+          {"orient": "bottom", "scale": "xOverview"}
+        ],
+        "marks": [
+          {
+            "type": "area",
+            "interactive": false,
+            "from": {"data": "chartData"},
+            "encode": {
+              "update": {
+                "x": {"scale": "xOverview", "field": "x"},
+                "y": {"scale": "yOverview", "field": "y"},
+                "y2": {"scale": "yOverview", "value": 0},
+                "fill": {"value": "red"}
+              }
+            }
+          },
+          {
+            "type": "rect",
+            "name": "brush",
+            "encode": {
+              "enter": {
+                "y": {"value": 0},
+                "height": {"signal": "graphSize[0]*(0.36/2)"},
+                "fill": {"value": "#333"},
+                "fillOpacity": {"value": 0.2}
+              },
+              "update": {
+                "x": {"signal": "brush[0]"},
+                "x2": {"signal": "brush[1]"}
+              }
+            }
+                 },
+          {
+            "type": "rect",
+            "interactive": false,
+            "encode": {
+              "enter": {
+                "y": {"value": 0},
+                "height": {"signal": "graphSize[0]*(0.36/2)"},
+                "width": {"value": 1},
+                "fill": {"value": "firebrick"}
+              },
+              "update": {
+                "x": {"signal": "brush[0]"}
+              }
+            }
+          },
+          {
+            "type": "rect",
+            "interactive": false,
+            "encode": {
+              "enter": {
+                "y": {"value": 0},
+                "height": {"signal": "graphSize[0]*(0.36/2)"},
+                "width": {"value": 1},
+                "fill": {"value": "firebrick"}
+              },
+              "update": {
+                "x": {"signal": "brush[1]"}
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }

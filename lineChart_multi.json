@@ -1,128 +1,117 @@
 {
-    "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "description": "A basic line chart example.",
-    "width": 500,
-    "height": 200,
-    "autosize": {
-      "type": "fit",
-      "contains": "padding"
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic line chart example.",
+  "width": 400,
+  "height": 100,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding"
+  },
+  "signals": [
+    {
+      "name": "interpolate",
+      "value": "linear"
     },
-  
-    "signals": [
-      {
-        "name": "interpolate",
-        "value": "linear"
-      },
-        {
-          "name": "xAxis",
-          "value" : ""
-        },
-        {
-          "name": "yAxis",
-          "value": ""
-        },
-        {
-          "name": "tooltip",
-          "value": {},
-          "on": [
-            {"events": "mouseover", "update": "datum"},
-            {"events": "mouseout", "update": "{}"}
-          ]
-        },
-        {
-          "name":"ymin",
-          "value": 0
-        },
-        {
-          "name":"ymax",
-          "value": 0
-        },
-        { 
-          "name": "width", 
-          "value": 0,
-          "on": [ { 
-            "events": { "source": "window", "type": "resize" }, 
-            "update": "containerSize()[0]" 
-          } ] 
-        },
-        { 
-          "name": "height", 
-          "value": 0,
-          "on": [ { 
-            "events": { "source": "window", "type": "resize" }, 
-            "update": "containerSize()[1]" 
-          } ] 
+    {
+      "name": "xAxis",
+      "value": ""
+    },
+    {
+      "name": "yAxis",
+      "value": ""
+    },
+    {
+      "name": "tooltip",
+      "value": {},
+      "on": [
+        {"events": "mouseover", "update": "datum"},
+        {"events": "mouseout", "update": "{}"}
+      ]
+    },
+    {
+      "name": "ymin",
+      "value": 0
+    },
+    {
+      "name": "ymax",
+      "value": 100
+    },
+    {
+      "name": "colors",
+      "value": []
+    }
+  ],
+  "data": [
+    {
+      "name": "table",
+      "values": []
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "point",
+      "range": "width",
+      "domain": {"data": "table", "field": {"signal": "xAxis"}}
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "range": "height",
+      "nice": true,
+      "zero": false,
+      "clamp": true,
+      "domain": [{"signal": "ymin"}, {"signal": "ymax"}]
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "range": {"signal": "colors"},
+      "domain": {"data": "table", "field": "c"}
+    }
+  ],
+  "axes": [
+    {"orient": "bottom", "scale": "x"},
+    {"orient": "left", "scale": "y"}
+  ],
+  "legends": [
+    {
+      "fill": "color",
+      "title": "Category",
+      "orient": "top-right"
+    }
+  ],
+  "marks": [
+    {
+      "type": "group",
+      "from": {
+        "facet": {
+          "name": "series",
+          "data": "table",
+          "groupby": "c"
         }
-
-    ],
-  
-    "data": [
-      {
-        "name": "table",
-        "values": []
-      }
-    ],
-  
-    "scales": [
-      {
-        "name": "x",
-        "type": "point",
-        "range": "width",
-        "domain": {"data": "table", "field": {"signal": "xAxis"}}
       },
-      {
-        "name": "y",
-        "type": "linear",
-        "range": "height",
-        "nice": true,
-        "zero": false,
-        "clamp": true,
-        "domain": [{"signal": "ymin"},{"signal": "ymax"}]
-      },
-      {
-        "name": "color",
-        "type": "ordinal",
-        "range": "category",
-        "domain": {"data": "table", "field": "c"}
-      }
-    ],
-  
-    "axes": [
-      {"orient": "bottom", "scale": "x"},
-      {"orient": "left", "scale": "y"}
-    ],
-  
-    "marks": [
-      {
-        "type": "group",
-        "from": {
-          "facet": {
-            "name": "series",
-            "data": "table",
-            "groupby": "c"
-          }
-        },
-        "marks": [
-          {
-            "type": "line",
-            "from": {"data": "series"},
-            "encode": {
-              "enter": {
-                "x": {"scale": "x", "field": {"signal": "xAxis"}},
-                "y": {"scale": "y", "field": {"signal": "yAxis"}},
-                "stroke": {"scale": "color", "field": "c"},
-                "strokeWidth": {"value": 3}
-              },
-              "update": {
-                "interpolate": {"signal": "interpolate"},
-                "strokeOpacity": {"value": 1}
-              },
-              "hover": {
-                "strokeOpacity": {"value": 0.5}
-              }
+      "marks": [
+        {
+          "type": "line",
+          "from": {"data": "series"},
+          "encode": {
+            "enter": {
+              "x": {"scale": "x", "field": {"signal": "xAxis"}},
+              "y": {"scale": "y", "field": {"signal": "yAxis"}},
+              "strokeWidth": {"value": 3}
+            },
+            "update": {
+              "interpolate": {"signal": "interpolate"},
+              "strokeOpacity": {"value": 1},
+              "stroke": {"scale": "color", "field": "c"}
+            },
+            "hover": {
+              "strokeOpacity": {"value": 0.5}
             }
           }
-        ]
-      }
-    ]
-  }
+        }
+      ]
+    }
+  ]
+}

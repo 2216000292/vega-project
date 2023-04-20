@@ -11,13 +11,11 @@
   <div class="sidebar" id="sidebar">
 	<form id="my-form" >
 
-      <div id="ember29" class="ace-editor-container ember-view ui-resizable" style="height: 150px;">        
-        <textarea id="ember30" name="myInput" class="ember-text-area ember-view accessible-editor resizable" aria-label="Enter your code here." spellcheck="false"></textarea>
-
+        <div id="ember29" class="ace-editor-container ember-view ui-resizable" style="height: 150px;">        
+          <textarea id="ember30" name="myInput" class="ember-text-area ember-view accessible-editor resizable" aria-label="Enter your code here." spellcheck="false"></textarea>
+        </div>
+        <div class="ui-resizable-handle ui-resizable-s" ></div>
       
-      </div>
-     
-      <div class="ui-resizable-handle ui-resizable-s" ></div>
     
       <div class="control-graph">
           <label for="chart-type">Chart type:</label>
@@ -26,32 +24,59 @@
             <option value="bar-chart">Bar Chart</option>
             <option value="line-chart">Line Chart</option>
             <option value="multiple-line-chart">Multiple Line Chart</option>
+            <option value="multiple-line-chart-two">Line Chart Projection</option>
+            <option value="scatter-plot">Scatter Plot</option>
           </select>
         
+        <div>
+          <label for="project">Projection</label>
+          <input type="checkbox" id="project" name="project" >
+        </div>
 
 
-        <!-- <div class="modify-domain">
+      <!-- <div id="color-change" style="display:none;">
+        <label for="color-input">Chart Color:</label>
+        <input type="text" id="color-input" name="color-input">
+          <label for="color-input">Chart Color:</label>
+          <div class="color-box"></div>
+        <input type="color" id="colorPicker" value="#ff0000" style="display:none;">
+      </div> -->
+      <div class="row" id="color-change" style="display:none;">
+        
+          <div class="column">
+            <label for="color-input" style="display:inline-block;">Chart Color:     </label>
+            <div class="color-box" id="color-box"></div>
+            <input type="color" id="colorPicker-barchart" value="#1956b3" name="bar-chart-color" style="display:none;">
+          </div>
           
-          <label for="domain-min" class="label-y-min" >y-min</label>
-          <input type="text" id="domain" name="domain-min" placeholder="0">
-          
-          <label for="domain-max">y-max</label>
-          <input type="text" id="domain" name="domain-max" placeholder="100">
-        </div>  -->
+        </div>
+
+        <div id="step-change" style="display:none;">
+          <label >Stroke Width:</label>
+          <input type="number" id="stroke-input" name="stroke-input" min="1" max="10">
+        </div>
+
+        <div class="linechart-control-color" id="linechart-control-color" style="display:none;">
+      </div>
 
         <div class="button">
           <button type="submit">Submit</button>
         </div>
+        
 
       </div>
 
 
 	</form>
+  
   </div>
 
   <div class="resizer"></div>
 
 	<div class="content" id="content">
+    <div class="projection-chart" id="projection-chart" style="display:none;"></div>
+    <div class="twoChart-resizer" id="twoChart-resizer" style="display:none;"></div>
+    <div class="main-chart" id="main-chart"> </div>
 		<div id="vis"></div>
     <div id="item-info"></div>
 	</div>

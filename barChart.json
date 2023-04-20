@@ -3,43 +3,31 @@
   "description": "A basic bar chart example, with value labels shown upon mouse hover.",
   "width": 400,
   "height": 200,
-  "padding": 5,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding"
+  },
+
 
   "data": [
     {
       "name": "table",
-      "values": []
+      "values":  []
     }
   ],
 
   "signals": [
     {
-      "name": "tooltip",
-      "value": {},
-      "on": [
-        {"events": "rect:mouseover", "update": "datum"},
-        {"events": "rect:mouseout",  "update": "{}"}
-      ]
+      "name": "fillColor",
+      "value": "steelblue"
     },
     {
-      "name": "fillColor",
-      "value": "red"
+      "name": "xAxis",
+      "value" : ""
     },
-    { 
-      "name": "width", 
-      "value": 0,
-      "on": [ { 
-        "events": { "source": "window", "type": "resize" }, 
-        "update": "containerSize()[0]" 
-      } ] 
-    },
-    { 
-      "name": "height", 
-      "value": 0,
-      "on": [ { 
-        "events": { "source": "window", "type": "resize" }, 
-        "update": "containerSize()[1]" 
-      } ] 
+    {
+      "name": "yAxis",
+      "value": ""
     }
   ],
 
@@ -47,14 +35,14 @@
     {
       "name": "xscale",
       "type": "band",
-      "domain": {"data": "table", "field": "category"},
+      "domain": {"data": "table", "field":  {"signal": "xAxis"}},
       "range": "width",
       "padding": 0.05,
       "round": true
     },
     {
       "name": "yscale",
-      "domain": {"data": "table", "field": "amount"},
+      "domain": {"data": "table", "field":  {"signal": "yAxis"}},
       "nice": true,
       "range": "height"
     }
@@ -71,37 +59,17 @@
       "from": {"data":"table"},
       "encode": {
         "enter": {
-          "x": {"scale": "xscale", "field": "category"},
+          "x": {"scale": "xscale", "field":   {"signal": "xAxis"}},
           "width": {"scale": "xscale", "band": 1},
-          "y": {"scale": "yscale", "field": "amount"},
+          "y": {"scale": "yscale", "field":   {"signal": "yAxis"}},
           "y2": {"scale": "yscale", "value": 0}
         },
         "update": {
           "fill": {"signal": "fillColor"}
         }
-        
         ,
         "hover": {
           "fill": {"value": "red"}
-        }
-      }
-    },
-    {
-      "type": "text",
-      "encode": {
-        "enter": {
-          "align": {"value": "center"},
-          "baseline": {"value": "bottom"},
-          "fill": {"value": "#333"}
-        },
-        "update": {
-          "x": {"scale": "xscale", "signal": "tooltip.category", "band": 0.5},
-          "y": {"scale": "yscale", "signal": "tooltip.amount", "offset": -2},
-          "text": {"signal": "tooltip.amount"},
-          "fillOpacity": [
-            {"test": "datum === tooltip", "value": 0},
-            {"value": 1}
-          ]
         }
       }
     }

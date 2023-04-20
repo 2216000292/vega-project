@@ -1,109 +1,186 @@
 {
-    "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "description": "A basic line chart example.",
-    "width": 500,
-    "height": 200,
-    "autosize": {
-      "type": "fit",
-      "contains": "padding"
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "Area charts with an interactive overview and filtered detail views.",
+  "width": 720,
+  "height": 540,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding"
+  },
+
+  "data": [
+    {
+      "name": "chartData",
+      "values": [
+    ]
+    }
+  ],
+
+  "signals": [
+    {
+      "name": "detailDomain"
     },
-  
-    "signals": [
-      {
-        "name": "interpolate",
-        "value": "linear",
-        "bind": {
-          "input": "select",
-          "options": [
-            "basis",
-            "cardinal",
-            "catmull-rom",
-            "linear",
-            "monotone",
-            "natural",
-            "step",
-            "step-after",
-            "step-before"
-          ]
+    {
+      "name": "graphSize",
+      "value": [540,690]
+    },
+    {
+      "name": "xAxis",
+      "value": ""
+    },
+    {
+      "name": "yAxis",
+      "value": ""
+    },
+    {
+      "name": "colors",
+      "value": []
+    },
+    {
+      "name": "brush",
+      "value" : 0
+    },
+    {
+      "name": "strokeWidth",
+      "value" : 2
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "name": "overview",
+      "encode": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 0},
+          "height": {"signal": "graphSize[0]"},
+          "width": {"signal": "graphSize[1]"},
+          "fill": {"value": "transparent"}
         }
       },
-      {
-        "name": "xAxis",
-        "value" : ""
-      },
-      {
-        "name": "yAxis",
-        "value": ""
-      },
-      {
-        "name": "fillColor",
-        "value": "pink"
-      },
-      { 
-        "name": "width", 
-        "value": 0,
-        "on": [ { 
-          "events": { "source": "window", "type": "resize" }, 
-          "update": "containerSize()[0]" 
-        } ] 
-      },
-      { 
-        "name": "height", 
-        "value": 0,
-        "on": [ { 
-          "events": { "source": "window", "type": "resize" }, 
-          "update": "containerSize()[1]" 
-        } ] 
-      }
-    ],
-  
-    "data": [
-      {
-        "name": "table",
-        "values": []
-      }
-    ],
-  
-    "scales": [
-      {
-        "name": "x",
-        "type": "point",
-        "range": "width",
-        "domain": {"data": "table", "field": {"signal": "xAxis"}}
-      },
-      {
-        "name": "y",
-        "type": "linear",
-        "range": "height",
-        "nice": true,
-        "zero": true,
-        "domain": {"data": "table", "field": {"signal": "yAxis"}}
-      }
-    ],
-  
-    "axes": [
-      {"orient": "bottom", "scale": "x"},
-      {"orient": "left", "scale": "y"}
-    ],
-  
-    "marks": [
-      {
-        "type" : "group",
-        "marks": [
-          {
-            "type": "line",
-            "from": {"data": "table"},
-            "encode": {
-              "enter": {
-                "x": {"scale": "x", "field": {"signal": "xAxis"}},
-                "y": {"scale": "y", "field": {"signal": "yAxis"}}
-              },
-              "update": {
-                "interpolate": {"signal": "interpolate"}
+      "signals": [
+        {
+          "name": "brush",
+          "push": "outer",
+          "on": [
+            {
+              "events": "@overview:mousedown",
+              "update": "[x(), x()]"
+            },
+            {
+              "events": "[@overview:mousedown, window:mouseup] > window:mousemove!",
+              "update": "[brush[0], clamp(x(), 0, graphSize[1])]"
+            }
+          ]
+        },
+        {
+          "name": "detailDomain",
+          "push": "outer",
+          "on": [
+            {
+              "events": {"signal": "brush"},
+              "update": "span(brush) ? invert('xOverview', brush) : null"
+            }
+          ]
+        }
+      ],
+      "scales": [
+        {
+          "name": "xOverview",
+          "type": "linear",
+          "range": [0,{"signal": "graphSize[1]"}],
+          "domain": {"data": "chartData", "field": {"signal": "xAxis"}}
+        },
+        {
+          "name": "yOverview",
+          "type": "linear",
+          "range": [{"signal": "graphSize[0]"}, 0],
+          "domain": {"data": "chartData", "field": {"signal": "yAxis"}},
+          "nice": true, "zero": true
+        },{
+          "name": "color",
+          "type": "ordinal",
+          "range": {"signal": "colors"},
+          "domain": {"data": "chartData", "field": "c"}
+        }
+      ],
+      "axes": [
+        {"orient": "bottom", "scale": "xOverview"},
+        {"orient": "left", "scale": "yOverview"}
+      ],
+      "marks": [
+        {
+          "type": "group",
+          "from": {
+            "facet": {"name": "seriesOverview",
+              "data": "chartData",
+              "groupby": "c"
+            }
+          },
+          "marks": [
+            {
+              "type": "line",
+              "from": {"data": "seriesOverview"},
+              "encode": {
+                "update": {
+                  "interpolate": {"value": "cardinal"},
+                  "x": {"scale": "xOverview", "field": {"signal": "xAxis"}},
+                  "y": {"scale": "yOverview", "field": {"signal": "yAxis"}},
+                  "stroke": {"scale": "color", "field": "c"},
+                  "strokeWidth": {"signal": "strokeWidth"}
+                }
               }
             }
+          ]
+        },
+        {
+          "type": "rect",
+          "name": "brush",
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "graphSize[0]"},
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value": 0.2}
+            },
+            "update": {
+              "x": {"signal": "brush[0]"},
+              "x2": {"signal": "brush[1]"}
+            }
           }
-        ]
-      }
-    ]
-  }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "graphSize[0]"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
+            },
+            "update": {
+              "x": {"signal": "brush[0]"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "interactive": false,
+          "encode": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"signal": "graphSize[0]"},
+              "width": {"value": 1},
+              "fill": {"value": "firebrick"}
+            },
+            "update": {
+              "x": {"signal": "brush[1]"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

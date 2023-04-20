@@ -1,0 +1,258 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "Area charts with an interactive overview and filtered detail views.",
+    "width": 720,
+    "height": 540,
+    "autosize": {
+      "type": "fit",
+      "contains": "padding"
+    },
+  
+    "data": [
+      {
+        "name": "chartData",
+        "values": [
+        {"x": 0, "y": 28, "c":0}, {"x": 0.5, "y": 20, "c":1},{"x": 3.4, "y": 80, "c":2},
+        {"x": 1.1, "y": 43, "c":0}, {"x": 1, "y": 35, "c":1},{"x": 4.7, "y": 30, "c":2},
+        {"x": 2.1, "y": 81, "c":0}, {"x": 2.2, "y": 10, "c":1},{"x": 4, "y": 20, "c":2},
+        {"x": 3.2, "y": 19, "c":0}, {"x": 3, "y": 15, "c":1},
+        {"x": 4.5, "y": 52, "c":0}, {"x": 4.7, "y": 48, "c":1},
+        {"x": 5.9, "y": 24, "c":0}, {"x": 5, "y": 28, "c":1},
+        {"x": 8.6, "y": 87, "c":0}, {"x": 3.6, "y": 66, "c":1},
+        {"x": 1.7, "y": 17, "c":0}, {"x": 7.0, "y": 27, "c":1},
+        {"x": 8.3, "y": 68, "c":0}, {"x": 4.4, "y": 16, "c":1},
+        {"x": 9, "y": 49, "c":0}, {"x": 3.9, "y": 25, "c":1}
+      ]
+      }
+    ],
+  
+    "signals": [
+      {
+      "name": "unit",
+      "value": {},
+      "on": [
+          {"events": "mousemove", "update": "isTuple(group()) ? group() : unit"}
+        ]
+      },
+      {
+        "name": "detailDomain"
+      },
+      {
+        "name": "detailDomainY"
+      },
+      {
+        "name": "graphSize",
+        "value": [540,720]
+      },
+      {
+        "name": "xAxis",
+        "value": "x"
+      },
+      {
+        "name": "yAxis",
+        "value": "y"
+      },
+      {
+        "name": "brush",
+        "value" : 0
+      },
+      {
+        "name": "brushY",
+        "value" : 0
+      }
+    ],
+  
+    "marks": [
+      {
+        "type": "group",
+        "name": "detail",
+        "encode": {
+          "enter": {
+            "height": {"signal": "graphSize[0]*0.6"},
+            "width": {"signal": "graphSize[1]"}
+          }
+        },
+        "scales": [
+          {
+            "name": "xDetail",
+            "type": "linear",
+            "range": [0,{"signal": "graphSize[1]"}],
+            "domain": {"data": "chartData", "field": {"signal": "xAxis"}},
+            "domainRaw": {"signal": "detailDomain"}
+          },
+          {
+            "name": "yDetail",
+            "type": "linear",
+            "range": [{"signal": "graphSize[0]*0.6"}, 0],
+            "domain": {"data": "chartData", "field": {"signal": "yAxis"}},
+            "nice": true, "zero": true,
+            "domainRaw": {"signal": "detailDomainY"}
+          }
+        ],
+        "axes": [
+          {"orient": "bottom", "scale": "xDetail"},
+          {"orient": "left", "scale": "yDetail"}
+        ],
+        "marks": [
+          {
+            "type": "group",
+            "from": {
+              "facet": {
+                "name": "series",
+                "data": "chartData",
+                "groupby": "null"
+              }
+            },
+            "encode": {
+              "enter": {
+                "height": {"signal": "graphSize[0]*0.6"},
+                "width": {"signal": "graphSize[1]"},
+                "clip": {"value": true}
+              }
+            },
+            "marks": [
+              {
+                "type": "symbol",
+                "from": {"data": "series"},
+                "encode": {
+                  "update": {
+                    "interpolate": {"value": "cardinal"},
+                    "x": {"scale": "xDetail", "field": {"signal": "xAxis"}},
+                    "y": {"scale": "yDetail", "field": {"signal": "yAxis"}},
+                    "strokeWidth": {"value": 5}
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+  
+      {
+        "type": "group",
+        "name": "overview",
+        "encode": {
+          "enter": {
+            "x": {"value": 0},
+            "y": {"signal": "graphSize[0]*0.6 + graphSize[0]*0.05"},
+            "height": {"signal": "graphSize[0]*(0.3)"},
+            "width": {"signal": "graphSize[1]"},
+            "fill": {"value": "transparent"}
+          }
+        },
+        "signals": [
+          {
+            "name": "brush",
+            "push": "outer",
+            "on": [
+              {
+                "events": "@overview:mousedown",
+                "update": "[x(unit), x(unit)]"
+              },
+              {
+                "events": "[@overview:mousedown, window:mouseup] > window:mousemove!",
+                "update": "[brush[0], clamp(x(), 0, graphSize[1])]"
+              }
+            ]
+          },
+          {
+            "name": "brushY",
+            "push": "outer",
+            "on": [
+              {
+                "events": "@overview:mousedown",
+                "update": "[y(unit), y(unit)]"
+              },
+              {
+                "events": "[@overview:mousedown, window:mouseup] > window:mousemove!",
+                "update": "[brushY[0],clamp(y(unit), 0, graphSize[0]*(0.3))]"
+              }
+            ]
+          },
+          {
+            "name": "detailDomain",
+            "push": "outer",
+            "on": [
+              {
+                "events": {"signal": "brush"},
+                "update": "span(brush) ? invert('xOverview', brush) : null"
+              }
+            ]
+          },
+          {
+            "name": "detailDomainY",
+            "push": "outer",
+            "on": [
+              {
+                "events": {"signal": "brushY"},
+               "update": "span(brushY) ? [invert('yOverview', brushY)[1], invert('yOverview', brushY)[0]] : null"
+              }
+            ]
+          }
+        ],
+        "scales": [
+          {
+            "name": "xOverview",
+            "type": "linear",
+            "range": [0,{"signal": "graphSize[1]"}],
+            "domain": {"data": "chartData", "field": {"signal": "xAxis"}}
+          },
+          {
+            "name": "yOverview",
+            "type": "linear",
+            "range": [{"signal": "graphSize[0]*(0.3)"}, 0],
+            "domain": {"data": "chartData", "field": {"signal": "yAxis"}},
+            "nice": true, "zero": true
+          }
+        ],
+        "axes": [
+          {"orient": "bottom", "scale": "xOverview"}
+        ],
+        "marks": [
+          {
+            "type": "group",
+            "from": {
+              "facet": {"name": "seriesOverview",
+                "data": "chartData",
+                "groupby": "null"
+              }
+            },
+            "marks": [
+              {
+                "type": "symbol",
+                "from": {"data": "seriesOverview"},
+                "encode": {
+                  "update": {
+                    "interpolate": {"value": "cardinal"},
+                    "x": {"scale": "xOverview", "field": {"signal": "xAxis"}},
+                    "y": {"scale": "yOverview", "field": {"signal": "yAxis"}},
+                    "strokeWidth": {"value": 5}
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "rect",
+            "name": "brush",
+            "encode": {
+              "enter": {
+                "y": {"value": 0},
+                "height": {"signal": "graphSize[0]*0.3"},
+                "fill": {"value": "#333"},
+                "fillOpacity": {"value": 0.2},
+                "stroke": {"value": "grey"}
+              },
+              "update": {
+                "x": {"signal": "brush[0]"},
+                "x2": {"signal": "brush[1]"},
+                "y" : {"signal": "brushY[0]"},
+                "y2" : {"signal": "brushY[1]"}
+              }
+            }
+          }
+        ]
+      }
+    ]
+  
+  }
