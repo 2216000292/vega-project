@@ -25,6 +25,14 @@
       "value": [540,690]
     },
     {
+      "name": "xAxisDomain",
+      "value": [0,20]
+    },
+    {
+      "name": "yAxisDomain",
+      "value": [0,200]
+    },
+    {
       "name": "xAxis",
       "value": ""
     },
@@ -90,13 +98,13 @@
           "name": "xOverview",
           "type": "linear",
           "range": [0,{"signal": "graphSize[1]"}],
-          "domain": {"data": "chartData", "field": {"signal": "xAxis"}}
+          "domain": {"signal": "xAxisDomain"}
         },
         {
           "name": "yOverview",
           "type": "linear",
           "range": [{"signal": "graphSize[0]"}, 0],
-          "domain": {"data": "chartData", "field": {"signal": "yAxis"}},
+          "domain": {"signal": "yAxisDomain"},
           "nice": true, "zero": true
         },{
           "name": "color",

@@ -1,29 +1,17 @@
-
-
-const zoomLevel = 1.1;
 const selectElement = document.querySelector('#chart-type');
 const selectedNameElement = document.querySelector('#selected-chart-type');
-
-
-// let myInput = document.querySelector('#graph-data');
-// let curr_data = [];
-let curr_width = 400;
-let curr_height = 200; 
-let defaultColor = "yellow";
-let curr_color = "black";
+let curr_color = "#325296";
 let curr_step = 10;
 let curr_dataset = null;
-let curr_type = "";
 var view = null;
 let curr_strokeWidth = 3;
+var curr_projection;
 var resizer = document.querySelector(".resizer"), sidebar = document.querySelector(".sidebar");
 var handle = document.querySelector('.ui-resizable-s');
 var inputfield = document.querySelector('#ember29');
 var editor = document.querySelector('.ace-editor-container textarea');
 var content = document.querySelector('.content');
 var twoChart_resizer = document.querySelector('.twoChart-resizer');
-var curr_projection;
-var curr_charts = ["",""];
 
 let colors = [
   "red", 
@@ -49,64 +37,6 @@ let colors = [
 ];
 const divObservers = {};
 
-var startY, startHeight;
-    
-    function arraysAreEqual(arr1, arr2) {
-      if (arr1.length !== arr2.length) {
-        return false;
-      }
-
-      for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i] !== arr2[i]) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    function renderProjectionChart(didRenderDivId,type,data){
-      const projection = document.getElementById(didRenderDivId);
-      var width =  projection.clientWidth-30;
-      var height =  projection.clientHeight-30;
-      if(type === "line-chart"){
-        changeToLineChart(data,"projection-chart",width,height);
-      }
-      // graphSizeControl(projection,type,data);
-
-    }
-
-    // function graphSizeControl(didRenderDiv,type,data){   // accept div as the parameter
-    //   if (resizeObserver) {
-    //     resizeObserver.disconnect();
-    //   }
-    //   resizeObserver = new ResizeObserver(entries => {
-    //   console.log("graphSizeControl is called----type:-",type);
-    //   for (let entry of entries) {
-    //     if(view !== null && curr_charts[0] !== ""){
-
-    //         var width = didRenderDiv.clientWidth-30;
-    //         var height = didRenderDiv.clientHeight-30;
-    //         console.log("Dectet size change:",width,height);
-    //         if(type === "multiple-line-chart"){
-    //           changeToMultiLineChart(data,"#main-chart",width,height);
-    //           console.log("changeToMultiLineChart---size controal");
-    //         }else if(type === "line-chart"){
-    //           changeToLineChart(data,"main-chart",width,height);
-    //           console.log("changeToLineChart -- size control");
-    //         }
-            
-    //       }
-    //     }
-    //   });
-    //   resizeObserver.observe(didRenderDiv);
-    // }
-
-    // 创建一个对象来存储div的observer
-
-// 创建一个对象来存储div的observer
-
-
     function debounce(func, wait) {
       let timeout;
       return function (...args) {
@@ -115,46 +45,6 @@ var startY, startHeight;
         timeout = setTimeout(() => func.apply(context, args), wait);
       };
     }
-
-    // function graphSizeControl(divs, types, data) {
-    //   // disconnect all divs's observer
-    //   divs.forEach(div => {
-    //     if (divObservers.hasOwnProperty(div.id)) {
-    //       divObservers[div.id].disconnect();
-    //     }
-    //   });
-
-    //   //create new connection for each div
-    //   divs.forEach(didRenderDiv => {
-    //     const resizeObserver = new ResizeObserver(
-    //       debounce(
-    //       entries => {
-    //         const entry = entries[0];
-    //         const type = types[didRenderDiv.id];
-    //         if (view !== null) {
-    //           var width = didRenderDiv.clientWidth - 30;
-    //           var height = didRenderDiv.clientHeight - 30;
-    //           console.log("Dectet size change:");
-    //           if (type === "bar-chart") {
-    //             changeToBarChart(data, didRenderDiv.id, width, height);
-    //             console.log("changeToBarChart---size controal",width);
-    //           } else if (type === "line-chart") {
-    //             changeToLineChart(data,didRenderDiv.id , width, height);
-    //             console.log("changeToLineChart -- size control",width);
-    //           }
-    //         }
-    //       }
-    //       ,50)
-    //       );
-
-    //       // add new observer to each object
-    //       divObservers[didRenderDiv.id] = resizeObserver;
-    //       // start observe div
-    //       resizeObserver.observe(didRenderDiv);
-
-    //   });
-    // }
-
     
     function graphSizeControl(willRenderObj) {
 
@@ -182,19 +72,21 @@ var startY, startHeight;
               } else if (type === "line-chart") {
                 changeToLineChart(obj.dataset, div.id , width, height);
                 console.log("changeToLineChart -- size control",width);
-              }else if (type === "scatter-plot") {
+              }else if (type === "scatter-plot-detailView") {
                 changeToScatterPlot(obj.dataset, div.id , width, height);
-                console.log("changeToScatterPlot -- size control",width);
+                console.log("changeToScatterPlot -- size control",width,height);
+              }else if (type === "line-chart-detailView") {
+                changeToLineChart_Detail_View(obj.dataset, div.id , width, height);
+                console.log("changeToLineChart_Detail_View -- size control",width);
               }
             
           }
-          ,50)
+          ,100)
           );
           divObservers[div.id] = resizeObserver;
           resizeObserver.observe(div);
       });
     }
-
 
     function controlLineColor(){
       const datasetCount = [...new Set(curr_dataset.map(item => item.c))].length;
@@ -254,8 +146,20 @@ var startY, startHeight;
       }
     }
 
-    function filterDataByXRange(data, xMin, xMax) {
-      return data.filter(item => item.x >= xMin && item.x <= xMax);
+    function controlBarChartColor(){
+      const color_box_div = document.getElementById('color-box');
+      const color_box_div_colorPicker = document.getElementById('colorPicker-barchart');
+      // Add a change event listener to the colorPicker element
+      color_box_div_colorPicker.addEventListener('change', () => {
+        // Get the current value of the colorPicker element
+        const color = color_box_div_colorPicker.value;
+        color_box_div.style.backgroundColor = color;
+      });
+
+      // Add a click event listener to the div
+      color_box_div.addEventListener('click', () => {
+        color_box_div_colorPicker.click();
+      });
     }
 
     function changeToLineChart(myData,willRenderDivId,width,height){
@@ -267,7 +171,7 @@ var startY, startHeight;
       }
       
       
-      fetch('lineChart.json')
+      fetch('./JSON/lineChart.json')
       .then(res => res.json())
       .then(spec => render(spec))
       .catch(err => console.error(err));
@@ -279,9 +183,6 @@ var startY, startHeight;
           hover:     true 
           })
           .insert("chartData", myData)
-          // return view.runAfter(
-          //   console.log(view.signal('xAxis'))
-          // )
           let xscale = Object.keys(myData[0])[0];
           let yscale = Object.keys(myData[0])[1];
           // let str = xscale.toString();
@@ -289,17 +190,16 @@ var startY, startHeight;
           view.signal('yAxis',yscale);
           view.signal("width",width);
           view.signal("height",height);
-          view.signal("graphSize",[height-30,width-30]);    //There is bug in json file, i don't why have to set -30,
+          view.signal("graphSize",[height-30,width-35]);    //There is bug in json file, i don't why have to set -30,
           view.signal("strokeWidth",curr_strokeWidth);
-          view.signal("colors",colors)
-          // view.signal('yAxis',yscale)
+          view.signal("colors",colors);
           view.runAsync();
 
           if(willRenderDivId === "main-chart" &&  curr_projection){
             let existedFilteredData = [];
             view.addSignalListener("detailDomain", (_, domain) => {
               if(domain != null && domain.length >= 1){   //return when user selects avavilable data, at least one element
-                filteredData = filterDataByXRange(curr_dataset, domain[0], domain[1]);
+                filteredData = filterDataByRange(myData, domain[0], domain[1]);
                 if(filteredData !== null && filteredData.length >= 1 && !arraysAreEqual(existedFilteredData,filteredData)){
                   existedFilteredData = filteredData;
                   // graphSizeControl([myDiv,projectionCharts],{"main-chart": "line-chart", "projection-chart": "line-chart" },dataset);
@@ -308,76 +208,11 @@ var startY, startHeight;
                   };
                   graphSizeControl(willRenderObj);
                   console.log(filteredData);
-                  // renderProjectionChart("projection-chart","line-chart",filteredData);
                 }
               }
             });
           }
           
-      }
-
-      
-
-    };
-
-    function changeToMultiLineChart(myData,willRenderDiv,width,height){
-      
-      fetch('lineChart_multi.json')
-      .then(res => res.json())
-      .then(spec => render(spec))
-      .catch(err => console.error(err));
-
-      function render(spec) {
-
-          view = new vega.View(vega.parse(spec), {
-          renderer:  'svg',  // renderer (canvas or svg)
-          container: willRenderDiv,   // parent DOM container
-          hover:     true 
-          })
-          .insert("table", myData)
-          // return view.runAfter(
-          //   console.log(view.signal('xAxis'))
-          // )
-          let xscale = Object.keys(myData[0])[0];
-          let yscale = Object.keys(myData[0])[1];
-          // let str = xscale.toString();
-          view.signal('xAxis',xscale);
-          view.signal('yAxis',yscale);
-          // view.signal('ymin',min);
-          view.signal('colors',colors);
-
-          // if(max > 0){
-          //   view.signal('ymax',max);
-          // }else{
-          //   view.signal('ymax',140);
-          // } 
-          
-          // view.height([curr_height]).width([curr_width]);
-          view.signal("width",width);
-          view.signal("height",height);
-//           view.addEventListener('mouseover', (event, item) => {
-//             const itemInfo = document.getElementById('item-info');
-//             if (item) {
-//                 // let arr = item.mark.source.value;
-//                 // let content = "";
-//                 // for (let i = 0; i < arr.length; i++) {
-//                 //   content += JSON.stringify(arr[i].datum, null, 2) + "\n";
-//                 // }
-//                 // itemInfo.innerText = content;
-//                 let arr = item.mark.source.value;
-//                 let html = "<table><tr><th>X</th><th>Y</th><th>C</th></tr>";
-//                 arr.forEach(d => {
-//                   html += `<tr><td>${d.datum.x}</td><td>${d.datum.y}</td><td>${d.datum.c}</td></tr>`;
-//                 });
-//                 html += "</table>";
-//                 itemInfo.innerHTML = html;
-
-                
-//               };
-          // });
-
-          view.runAsync();
-          controlLineColor();
       }
 
       
@@ -392,7 +227,7 @@ var startY, startHeight;
         renderedDiv = "#projection-chart"
       }
       
-      fetch('scatter_plot.json')
+      fetch('./JSON/scatter_plot.json')
       .then(res => res.json())
       .then(spec => render(spec))
       .catch(err => console.error(err));
@@ -414,8 +249,22 @@ var startY, startHeight;
           view.signal('yAxis',yscale);
           view.signal("width",width);
           view.signal("height",height);
-          view.signal("graphSize",[height,width-30]);    //There is bug in json file, i don't know why have to set -30,
+          view.signal("graphSize",[height,width-80]);    //There is bug in json file, i don't know why have to set -30,
+          view.signal("classification","c");
           view.runAsync();
+
+          if(willRenderDivId === "main-chart" &&  !curr_projection){// if there is only one chart show up in screen
+            let existedFilteredData = [];     //Avoid rendering duplicate content.
+            view.addSignalListener("detailDomainXY", (_, domain) => {
+              if(domain[0] != null && domain[1] != null){   //when user selects a region with included data, 
+                let filteredData = filterDataByTwoRanges(myData, domain[0], domain[1]);
+                if(filteredData !== null && filteredData.length >= 1 && !arraysAreEqual(existedFilteredData,filteredData)){
+                  existedFilteredData = filteredData;
+                  console.log(filteredData);
+                }
+              }
+            });
+          }
       }
     };
 
@@ -428,7 +277,7 @@ var startY, startHeight;
       }
       
       
-      fetch('barChart.json')
+      fetch('./JSON/barChart.json')
       .then(res => res.json())
       .then(spec => render(spec))
       .catch(err => console.error(err));
@@ -444,49 +293,24 @@ var startY, startHeight;
           let yscale = Object.keys(myData[0])[1];
           view.signal('xAxis',xscale);
           view.signal('yAxis',yscale);
-          // view.height([curr_height]).width([curr_width])
-          
-          // const tooltipHandler = new vegaTooltip.Handler().call;
-          // console.log(view.tooltip(tooltipHandler));
           view.signal("width",width);
           view.signal("height",height);
           view.signal("fillColor",curr_color);
-
-          // view.addEventListener('mouseover', (event, item) => {
-          //   if (item && item.datum) {
-          //     const itemInfo = document.getElementById('item-info');
-          //     itemInfo.innerText = JSON.stringify(item.datum, null, 2);
-          //   }
-          // });
-          
           view.runAsync();
-          
+          controlBarChartColor()
       }
 
     };
-
-    function changeToAreaChart(){
-      fetch('areaChart.json')
-      .then(res => res.json())
-      .then(spec => render(spec))
-      .catch(err => console.error(err));
-
-      function render(spec) {
-        view = new vega.View(vega.parse(spec), {
-        renderer:  'svg',  // renderer (canvas or svg)
-        container: '#vis',   // parent DOM container
-        hover:     true 
-        })
-        view.signal("graphSize",[curr_height,900]);
-        view.signal("height",curr_height);
-        view.runAsync();
-        
-    }
-    }
   
-    function  changeToMultiLineProjection(myData,willRenderDiv){
+    function changeToLineChart_Detail_View(myData,willRenderDivId,width,height){
+      let renderedDiv;
+      if(willRenderDivId === "main-chart"){
+        renderedDiv = "#main-chart"
+      }else if(willRenderDivId === "projection-chart"){
+        renderedDiv = "#projection-chart"
+      }
 
-      fetch('lineChart_two.json')
+      fetch('./JSON/lineChart_two.json')
       .then(res => res.json())
       .then(spec => render(spec))
       .catch(err => console.error(err));
@@ -495,7 +319,7 @@ var startY, startHeight;
 
           view = new vega.View(vega.parse(spec), {
           renderer:  'svg',  // renderer (canvas or svg)
-          container: willRenderDiv,   // parent DOM container
+          container: renderedDiv,   // parent DOM container
           hover:     true 
           })
           .insert("chartData", myData)
@@ -504,31 +328,32 @@ var startY, startHeight;
           view.signal('xAxis',xscale);
           view.signal('yAxis',yscale);
           view.signal('colors',colors);
-          view.signal("graphSize",[curr_height,curr_width]);
-          view.signal("width",curr_width);
-          view.signal("height",curr_height);
-          
+          view.signal("graphSize",[height,width-30]);
+          view.signal("width",width);
+          view.signal("height",height);
+          view.signal("strokeWidth",curr_strokeWidth);
           view.runAsync();
           controlLineColor();
           
+          let existedFilteredData = []; 
           view.addSignalListener("detailDomain", (_, domain) => {
-            if(domain != null && domain.length >= 1){   //return when user selects avavilable data, at least one element
-              filteredData = filterDataByXRange(curr_dataset, domain[0], domain[1]);
-              console.log(filteredData);
+            if(domain != null && domain.length >= 1){   //return when user selects avavilable data
+              filteredData = filterDataByRange(myData, domain[0], domain[1]);
+              if(filteredData !== null && filteredData.length >= 1 && !arraysAreEqual(existedFilteredData,filteredData)){
+                existedFilteredData = filteredData;
+                console.log(filteredData);
+              }
             }
           });
       }
     }
-
 
     function updateGraph(dataset,type,color,projection){
       const myDiv = document.getElementById('main-chart');
       const projectionCharts = document.getElementById("projection-chart");
       const twoChart_resizer = document.getElementById("twoChart-resizer");
       const content = document.getElementById("content");
-      curr_width = myDiv.clientWidth-30;
-      curr_height = myDiv.clientHeight-30;
-      console.log("updateGraph function is called, height&width=>",curr_width, curr_height);
+      console.log("updateGraph function is called");
 
       // if(type === "line-chart"){
       //   console.log("changeToLineChart() is called")
@@ -573,14 +398,10 @@ var startY, startHeight;
         projectionCharts.style.display = "block";
         twoChart_resizer.style.display = "block";
         myDiv.style.height = "10%";                 //这里删除会出现无限渲染的bug
-        curr_width = myDiv.clientWidth-30;
-        curr_height = myDiv.clientHeight-30;
         let willRenderObj = {
           main_chart: {name:"main-chart"  , type: type, dataset: dataset},
           projection_chart: {name:"projection-chart" , type: "line-chart", dataset: dataset}
         };
-        
-        // graphSizeControl([myDiv,projectionCharts],{"main-chart": "line-chart", "projection-chart": "line-chart" },dataset);
         graphSizeControl(willRenderObj);
         contorlAdjacentDiv(twoChart_resizer);
       }else{
@@ -706,12 +527,7 @@ var startY, startHeight;
         document.removeEventListener('mousemove', handleResize);
         document.removeEventListener('mouseup', stopResize);
       }
-    }
-
-    // if(curr_projection){
-    //   contorlAdjacentDiv(twoChart_resizer);  
-    //   graphSizeControl(document.getElementById("main-chart"));
-    // }      
+    }      
 
     
 const form = document.querySelector('#my-form');
@@ -730,9 +546,8 @@ form.addEventListener('submit', function(event) {
 
   curr_dataset = data;
   const type = formData.get('chart-type');
-  curr_type = type;
-  const min = formData.get('domain-min');
-  const max = formData.get('domain-max');
+  // const min = formData.get('domain-min');
+  // const max = formData.get('domain-max');
   // const color = formData.get('color-input');
   const stroke = formData.get('stroke-input');
   curr_strokeWidth = stroke;
@@ -741,13 +556,11 @@ form.addEventListener('submit', function(event) {
   curr_projection = Boolean(projection);
   console.log("submit",curr_projection);
   updateGraph(data,type,color,curr_projection);
-  // Reset the form
+  
 });
 
 
-
-
-
+//which component in the sidebar should be hidden or show----------------------------------------------------------------------------
 const chartTypeSelect = document.getElementById('chart-type');
 const colorSelect = document.getElementById('color-change');
 const stepSelect = document.getElementById('step-change');
@@ -757,41 +570,25 @@ chartTypeSelect.addEventListener('change', function() {
   const selectedOptionValue = this.value;
   
   if (selectedOptionValue === 'bar-chart') {
-    colorSelect.style.display = "block";
-    stepSelect.style.display = "none";
-    lineChartColorSelect.style.display = "none";
-  }else if (selectedOptionValue === 'line-chart') {
+    colorSelect.style.display = "block";      // color seletor for barchart
+    stepSelect.style.display = "none";        // line width for linechart
+    lineChartColorSelect.style.display = "none";    // color seletor for linechart
+  }else if (selectedOptionValue === 'line-chart' || selectedOptionValue === 'line-chart-detailView') {
     colorSelect.style.display = "none";
     stepSelect.style.display = "block";
+    lineChartColorSelect.style.display = "block";
+  }else if(selectedOptionValue === 'scatter-plot-detailView'){
+    colorSelect.style.display = "none";
+    stepSelect.style.display = "none";
     lineChartColorSelect.style.display = "none";
-  }
-   else if(selectedOptionValue === 'multiple-line-chart' || selectedOptionValue === 'multiple-line-chart-two'){
-   colorSelect.style.display = "none";
-   stepSelect.style.display = "none";
-   lineChartColorSelect.style.display = "block";
-   }
-   else{
+  }else{
+    colorSelect.style.display = "none";
     colorSelect.style.display = "none";
     stepSelect.style.display = "none";
   }
 });
 
 
-// set barchart color----------------------------------------------------------------------------
-const color_box_div = document.getElementById('color-box');
-const color_box_div_colorPicker = document.getElementById('colorPicker-barchart');
-// Add a change event listener to the colorPicker element
-color_box_div_colorPicker.addEventListener('change', () => {
-  // Get the current value of the colorPicker element
-  const color = color_box_div_colorPicker.value;
-  color_box_div.style.backgroundColor = color;
-});
-
-// Add a click event listener to the div
-color_box_div.addEventListener('click', () => {
-  color_box_div_colorPicker.click();
-});
-// set barchart color-------------------------------------------------------------------------------
 
 
 

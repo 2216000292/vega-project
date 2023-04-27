@@ -22,10 +22,9 @@
           <select name="chart-type" id="chart-type">
             <option value="none">None</option>
             <option value="bar-chart">Bar Chart</option>
-            <option value="line-chart">Line Chart</option>
-            <option value="multiple-line-chart">Multiple Line Chart</option>
-            <option value="multiple-line-chart-two">Line Chart Projection</option>
-            <option value="scatter-plot">Scatter Plot</option>
+            <option value="line-chart">Line Chart(bug)</option>
+            <option value="line-chart-detailView">Line Chart</option>
+            <option value="scatter-plot-detailView">Scatter Plot</option>
           </select>
         
         <div>
@@ -34,19 +33,12 @@
         </div>
 
 
-      <!-- <div id="color-change" style="display:none;">
-        <label for="color-input">Chart Color:</label>
-        <input type="text" id="color-input" name="color-input">
-          <label for="color-input">Chart Color:</label>
-          <div class="color-box"></div>
-        <input type="color" id="colorPicker" value="#ff0000" style="display:none;">
-      </div> -->
       <div class="row" id="color-change" style="display:none;">
         
           <div class="column">
             <label for="color-input" style="display:inline-block;">Chart Color:     </label>
             <div class="color-box" id="color-box"></div>
-            <input type="color" id="colorPicker-barchart" value="#1956b3" name="bar-chart-color" style="display:none;">
+            <input type="color" id="colorPicker-barchart" value="#325296" name="bar-chart-color" style="display:none;">
           </div>
           
         </div>
@@ -93,6 +85,8 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-tooltip@0.30.1"></script>
 
 
-  <script src="main.js">
-  </script>
+  <script src="dataProcessor.js"></script>
+  <script src="main.js"></script>
+ 
+
 </body>
