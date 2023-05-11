@@ -1,17 +1,12 @@
 const selectElement = document.querySelector('#chart-type');
 const selectedNameElement = document.querySelector('#selected-chart-type');
-let curr_color = "#325296";
-let curr_step = 10;
-let curr_dataset = null;
-var view = null;
-let curr_strokeWidth = 3;
-var curr_projection;
-var resizer = document.querySelector(".resizer"), sidebar = document.querySelector(".sidebar");
-var handle = document.querySelector('.ui-resizable-s');
-var inputfield = document.querySelector('#ember29');
-var editor = document.querySelector('.ace-editor-container textarea');
-var content = document.querySelector('.content');
-var twoChart_resizer = document.querySelector('.twoChart-resizer');
+const resizer = document.querySelector(".resizer"), sidebar = document.querySelector(".sidebar");
+const handle = document.querySelector('.ui-resizable-s');
+const inputfield = document.querySelector('#ember29');
+const editor = document.querySelector('.ace-editor-container textarea');
+const content = document.querySelector('.content');
+const twoChart_resizer = document.querySelector('.twoChart-resizer');
+
 
 let colors = [
   "red", 
@@ -35,7 +30,15 @@ let colors = [
   "fuchsia", 
   "indigo"
 ];
+let curr_color = "#325296";
+let curr_dataset = null;
+let view = null;
+let curr_strokeWidth = 3;
+let curr_projection = false;
+
+
 const divObservers = {};
+
 
     function debounce(func, wait) {
       let timeout;
@@ -46,6 +49,15 @@ const divObservers = {};
       };
     }
     
+    /**
+     * This function takes an object as an parameter and parses it to get the necessary parameters such as size and input data, 
+     * which are then passed to the appropriate rendering functions such as changeToLineChart() or changeToScatterPlot(). 
+     * The function also uses the Observer API to monitor whether the size of the div elements in which the charts are rendered changes. 
+     * If a change is detected, the function will re-render the charts with the updated size.
+     * 
+     * @param {object} willRenderObj Parameter format{ main_chart: {name:"main-chart",type: bar-chart, dataset: []}
+        }
+     */
     function graphSizeControl(willRenderObj) {
 
       Object.values(willRenderObj).forEach(obj => {
@@ -60,34 +72,45 @@ const divObservers = {};
         const resizeObserver = new ResizeObserver(
           debounce(
           entries => {
-            const entry = entries[0];
-            const type = obj.type;
+            for (const entry of entries){
+              if (entry.contentBoxSize){
+                // const entry = entries[0];
+                const type = obj.type;
 
-              var width = div.clientWidth - 30;
-              var height = div.clientHeight - 30;
-              console.log("Dectet size change:");
-              if (type === "bar-chart") {
-                changeToBarChart(obj.dataset, div.id, width, height);
-                console.log("changeToBarChart---size controal",width);
-              } else if (type === "line-chart") {
-                changeToLineChart(obj.dataset, div.id , width, height);
-                console.log("changeToLineChart -- size control",width);
-              }else if (type === "scatter-plot-detailView") {
-                changeToScatterPlot(obj.dataset, div.id , width, height);
-                console.log("changeToScatterPlot -- size control",width,height);
-              }else if (type === "line-chart-detailView") {
-                changeToLineChart_Detail_View(obj.dataset, div.id , width, height);
-                console.log("changeToLineChart_Detail_View -- size control",width);
+                  var width = div.clientWidth -30 ;
+                  var height = div.clientHeight;
+                  console.log("Dectet size change:");
+                  if (type === "bar-chart") {
+                    changeToBarChart(obj.dataset, div.id, width, height);
+                    console.log("changeToBarChart---size controal",width);
+                  } else if (type === "line-chart") {
+                    changeToLineChart(obj.dataset, div.id , width, height);
+                    console.log("changeToLineChart -- size control",width,"height:",height);
+                  }else if (type === "scatter-plot-detailView") {
+                    changeToScatterPlot(obj.dataset, div.id , width, height);
+                    console.log("changeToScatterPlot -- size control",width,height);
+                  }else if (type === "line-chart-detailView") {
+                    changeToLineChart_Detail_View(obj.dataset, div.id , width, height);
+                    console.log("changeToLineChart_Detail_View -- size control",width);
+                  }
               }
+            }
+            
             
           }
           ,100)
           );
           divObservers[div.id] = resizeObserver;
-          resizeObserver.observe(div);
+          resizeObserver.observe(div,{ box : 'border-box' });
       });
     }
 
+    /**
+     * This function is responsible for creating a color control panel for the line chart. 
+     * It determines the number of datasets to be displayed on the chart and creates a corresponding color control for each one.
+     * Users can click on the colored circles to open a color picker to change the color of each line. 
+     * This function gets called when a line chart is rendered.
+     */
     function controlLineColor(){
       const datasetCount = [...new Set(curr_dataset.map(item => item.c))].length;
       document.getElementById("linechart-control-color").innerHTML = '';   //avoid overlapping with the old content.
@@ -146,6 +169,12 @@ const divObservers = {};
       }
     }
 
+    /**
+     * This function is responsible for creating a color control panel for the bar chart. 
+     * It creates a color picker element and sets up an event listener for it. 
+     * When the user clicks on the color box, the color picker opens, allowing the user to select a color for the bar chart. 
+     * This function gets called when a bar chart is rendered.
+     */
     function controlBarChartColor(){
       const color_box_div = document.getElementById('color-box');
       const color_box_div_colorPicker = document.getElementById('colorPicker-barchart');
@@ -162,6 +191,16 @@ const divObservers = {};
       });
     }
 
+    /**
+     * This function is used to render line charts controlled by the two Vega View APIs.
+     * They parse the data passed to them and use Vega chart specifications defined in JSON files fetched using the Fetch API, 
+     * and it also sets various values for the charts such as axis labels, colors, stroke widths, and chart size.
+     * 
+     * @param {object} myData User's input data
+     * @param {string} willRenderDivId The ID of the DOM element where the chart will be rendered.
+     * @param {number} width Viewable width of an element in pixels, including padding, but not the border, scrollbar or margin.
+     * @param {number} height Viewable height of an element in pixels, including padding, but not the border, scrollbar or margin.
+     */
     function changeToLineChart(myData,willRenderDivId,width,height){
       let renderedDiv;
       if(willRenderDivId === "main-chart"){
@@ -219,6 +258,16 @@ const divObservers = {};
 
     };
 
+    /**
+     * This function is used to render scatter plot using the Vega view API. 
+     * They parse the data passed to them and use Vega chart specifications defined in JSON files fetched using the Fetch API, 
+     * and it also sets various values for the charts such as axis labels, colors, stroke widths, and chart size.
+     * 
+     * @param {object} myData User's input data
+     * @param {string} willRenderDivId The ID of the DOM element where the chart will be rendered.
+     * @param {number} width Viewable width of an element in pixels, including padding, but not the border, scrollbar or margin.
+     * @param {number} height Viewable height of an element in pixels, including padding, but not the border, scrollbar or margin.
+     */
     function changeToScatterPlot(myData,willRenderDivId,width,height){
       let renderedDiv;
       if(willRenderDivId === "main-chart"){
@@ -268,6 +317,16 @@ const divObservers = {};
       }
     };
 
+    /**
+     * This function is used to render bar charts using the Vega view API. 
+     * They parse the data passed to them and use Vega chart specifications defined in JSON files fetched using the Fetch API, 
+     * and it also sets various values for the charts such as axis labels, colors, stroke widths, and chart size.
+     * 
+     * @param {object} myData User's input data
+     * @param {string} willRenderDivId The ID of the DOM element where the chart will be rendered.
+     * @param {number} width Viewable width of an element in pixels, including padding, but not the border, scrollbar or margin.
+     * @param {number} height Viewable height of an element in pixels, including padding, but not the border, scrollbar or margin.
+     */
     function changeToBarChart(myData,willRenderDivId,width,height){
       let renderedDiv;
       if(willRenderDivId === "main-chart"){
@@ -294,7 +353,7 @@ const divObservers = {};
           view.signal('xAxis',xscale);
           view.signal('yAxis',yscale);
           view.signal("width",width);
-          view.signal("height",height);
+          view.signal("height",height-20);
           view.signal("fillColor",curr_color);
           view.runAsync();
           controlBarChartColor()
@@ -302,6 +361,16 @@ const divObservers = {};
 
     };
   
+    /**
+     * This function is used to render line charts using the Vega view API. 
+     * They parse the data passed to them and use Vega chart specifications defined in JSON files fetched using the Fetch API, 
+     * and it also sets various values for the charts such as axis labels, colors, stroke widths, and chart size.
+     * 
+     * @param {object} myData User's input data
+     * @param {string} willRenderDivId The ID of the DOM element where the chart will be rendered.
+     * @param {number} width Viewable width of an element in pixels, including padding, but not the border, scrollbar or margin.
+     * @param {number} height Viewable height of an element in pixels, including padding, but not the border, scrollbar or margin.
+     */
     function changeToLineChart_Detail_View(myData,willRenderDivId,width,height){
       let renderedDiv;
       if(willRenderDivId === "main-chart"){
@@ -345,9 +414,24 @@ const divObservers = {};
               }
             }
           });
+
+          console.log(view);
       }
     }
 
+    /**
+     * This function is responsible for retrieving the user's input data and preferences from the form, parsing the input data, 
+     * and updating the current dataset and visualization options accordingly. 
+     * It then creates an object that encapsulates the relevant information, including the selected chart type, input data, 
+     * and the div element where the chart will be rendered. Finally, this object is passed as an argument to the graphSizeControl() function,
+     * which calculates the appropriate dimensions for the chart and uses them to render the chart.
+      *
+      * @param {Object[]} dataset - The dataset for the chart.
+      * @param {string} type - The type of the chart.
+      * @param {string} color - The color to use for the chart.
+      * @param {boolean} projection - Flag indicating whether a projection chart is needed.
+      *
+     */
     function updateGraph(dataset,type,color,projection){
       const myDiv = document.getElementById('main-chart');
       const projectionCharts = document.getElementById("projection-chart");
@@ -420,116 +504,165 @@ const divObservers = {};
       
     };
 
-    //resizer between sidebar and chart
-    function initResizerFn( resizer, sidebar , content) {
+/**
+ * Initializes a function to handle the resizing of a sidebar and content area with a draggable resizer.
+ * This function has internal handlers for mousedown, mousemove, and mouseup events to control the resizing process.
+ * 
+ * The mousedown handler tracks the initial mouse position and sets up event listeners for mouse movement and release.
+ * The mousemove handler adjusts the sidebar width based on the change in mouse position.
+ * The mouseup handler removes event listeners for mouse movement and release once the resizing action is done.
+ *
+ * @param {HTMLElement} resizer - The HTML element used as a handle to resize the sidebar and content area.
+ * @param {HTMLElement} sidebar - The HTML element representing the sidebar, which will be resized.
+ * @param {HTMLElement} content - The HTML element representing the content area, which will be resized indirectly.
+ *
+ * @function
+ * @name initResizerFn
+ */
+  function initResizerFn( resizer, sidebar , content) {
 
-      // track current mouse position in x var
-      var x, w, contentW;
-  
-      function rs_mousedownHandler( e ) {
-  
-        x = e.clientX;
-  
-        var sbWidth = window.getComputedStyle( sidebar ).width;
-        w = parseInt( sbWidth, 10 );
-        var contentWidth = window.getComputedStyle( content ).width;
-        contentW = parseInt( contentWidth, 10 );
-  
-        document.addEventListener("mousemove", rs_mousemoveHandler);
-        document.addEventListener("mouseup", rs_mouseupHandler);
-      }
-  
-      function rs_mousemoveHandler( e ) {
-        var dx = e.clientX - x;
-        var cw = w + dx; // complete width
-        const newLeftWidth = ((w + dx) * 100) / resizer.parentNode.getBoundingClientRect().width;;
-        
-        if ( newLeftWidth > 5 && newLeftWidth < 70) {
-          sidebar.style.width = `${newLeftWidth}%`;
-        }
-      }
+    // track current mouse position in x var
+    var x, w, contentW;
 
-  
-      function rs_mouseupHandler() {
-        // remove event mousemove && mouseup
-        document.removeEventListener("mouseup", rs_mouseupHandler);
-        document.removeEventListener("mousemove", rs_mousemoveHandler);
-      }
-  
-      
+    function rs_mousedownHandler( e ) {
 
-      resizer.addEventListener("mousedown", rs_mousedownHandler);
+      x = e.clientX;
 
-    };
-    initResizerFn( resizer, sidebar , content);           
-    
+      var sbWidth = window.getComputedStyle( sidebar ).width;
+      w = parseInt( sbWidth, 10 );
+      var contentWidth = window.getComputedStyle( content ).width;
+      contentW = parseInt( contentWidth, 10 );
 
-    //resizer in sidebar
-    function contorlSizeOfInputField(inputfield,editor,handle){
-
-      handle.addEventListener('mousedown', function(e) {
-        startY = e.clientY;
-        startHeight = parseInt(getComputedStyle(inputfield).height);
-        document.addEventListener('mousemove', handleResize);
-        document.addEventListener('mouseup', stopResize);
-      });
-      function handleResize(e) {
-        var diffY = e.clientY - startY;
-        var newHeight = startHeight + diffY;
-        if(newHeight < 500){      // set the sidebar maximum height of inpout field to 500
-          editor.style.height = (newHeight) + 'px'; // adjust for padding/margin
-          inputfield.style.height = newHeight + 'px';
-        }
-      }
-      function stopResize() {
-        document.removeEventListener('mousemove', handleResize);
-        document.removeEventListener('mouseup', stopResize);
-      }
-
+      document.addEventListener("mousemove", rs_mousemoveHandler);
+      document.addEventListener("mouseup", rs_mouseupHandler);
     }
-    contorlSizeOfInputField(inputfield,editor,handle);    
 
-
-     //general resizer function, only available use when user resize "height"
-    function contorlAdjacentDiv(resizer){
-      const prevSibling = resizer.previousElementSibling;
-      const nextSibling = resizer.nextElementSibling;
-      resizer.addEventListener('mousedown', function(e) {
-        x = e.clientX;
-        y = e.clientY;
-        prevSiblingHeight = prevSibling.getBoundingClientRect().height;
-        console.log(prevSiblingHeight);
-        document.addEventListener('mousemove', handleResize);
-        document.addEventListener('mouseup', stopResize);
-      });
-      function handleResize(e) {
-        resizer.style.cursor = 'col-resize';
-        document.body.style.cursor = 'col-resize';
-        prevSibling.style.userSelect = 'none';
-        prevSibling.style.pointerEvents = 'none';
-        nextSibling.style.userSelect = 'none';
-        nextSibling.style.pointerEvents = 'none';
-
-        const dx = e.clientX - x;
-        const dy = e.clientY - y;
-        const newPrevSiblingHeight = ((prevSiblingHeight + dy) * 100) / resizer.parentNode.getBoundingClientRect().height;
-        if(newPrevSiblingHeight > 3 && newPrevSiblingHeight < 97){
-          prevSibling.style.height = `${newPrevSiblingHeight}%`;
-        }
+    function rs_mousemoveHandler( e ) {
+      var dx = e.clientX - x;
+      var cw = w + dx; // complete width
+      const newLeftWidth = ((w + dx) * 100) / resizer.parentNode.getBoundingClientRect().width;;
+      
+      if ( newLeftWidth > 5 && newLeftWidth < 70) {
+        sidebar.style.width = `${newLeftWidth}%`;
       }
-      function stopResize() {
-        resizer.style.removeProperty('cursor');
-        document.body.style.removeProperty('cursor');
-        prevSibling.style.removeProperty('user-select');
-        prevSibling.style.removeProperty('pointer-events');
-        nextSibling.style.removeProperty('user-select');
-        nextSibling.style.removeProperty('pointer-events');
-        document.removeEventListener('mousemove', handleResize);
-        document.removeEventListener('mouseup', stopResize);
-      }
-    }      
+    }
+
+
+    function rs_mouseupHandler() {
+      // remove event mousemove && mouseup
+      document.removeEventListener("mouseup", rs_mouseupHandler);
+      document.removeEventListener("mousemove", rs_mousemoveHandler);
+    }
 
     
+
+    resizer.addEventListener("mousedown", rs_mousedownHandler);
+
+  };
+  initResizerFn( resizer, sidebar , content);           
+    
+
+  /**
+   * Controls the size of an input field based on mouse movement.
+   *
+   * This function adds event listeners to a specified handle element to allow resizing of an input field.
+   * The 'mousedown' event on the handle initiates the resizing process, activating 'mousemove' and 'mouseup' events.
+   * The 'mousemove' event dynamically adjusts the input field's height based on the cursor's vertical displacement.
+   * The 'mouseup' event finalizes the resizing and removes the 'mousemove' and 'mouseup' event listeners.
+   * The maximum height of the input field is capped at 500 pixels.
+   *
+   * @param {HTMLElement} inputfield - The HTML element representing the input field to be resized.
+   * @param {HTMLElement} editor - The HTML element representing the editor area, which will be resized along with the input field.
+   * @param {HTMLElement} handle - The HTML element used as a handle to resize the input field and editor area.
+   *
+   * @function
+   * @name controlSizeOfInputField
+   */
+  function contorlSizeOfInputField(inputfield,editor,handle){
+
+    handle.addEventListener('mousedown', function(e) {
+      startY = e.clientY;
+      startHeight = parseInt(getComputedStyle(inputfield).height);
+      document.addEventListener('mousemove', handleResize);
+      document.addEventListener('mouseup', stopResize);
+    });
+    function handleResize(e) {
+      var diffY = e.clientY - startY;
+      var newHeight = startHeight + diffY;
+      if(newHeight < 500){      // set the sidebar maximum height of inpout field to 500
+        editor.style.height = (newHeight) + 'px'; // adjust for padding/margin
+        inputfield.style.height = newHeight + 'px';
+      }
+    }
+    function stopResize() {
+      document.removeEventListener('mousemove', handleResize);
+      document.removeEventListener('mouseup', stopResize);
+    }
+
+  }
+  contorlSizeOfInputField(inputfield,editor,handle);    
+
+
+  //general resizer function, only available use when user resize "height"
+  function contorlAdjacentDiv(resizer){
+    const prevSibling = resizer.previousElementSibling;
+    const nextSibling = resizer.nextElementSibling;
+    resizer.addEventListener('mousedown', function(e) {
+      x = e.clientX;
+      y = e.clientY;
+      prevSiblingHeight = prevSibling.getBoundingClientRect().height;
+      console.log(prevSiblingHeight);
+      document.addEventListener('mousemove', handleResize);
+      document.addEventListener('mouseup', stopResize);
+    });
+    function handleResize(e) {
+      resizer.style.cursor = 'col-resize';
+      document.body.style.cursor = 'col-resize';
+      prevSibling.style.userSelect = 'none';
+      prevSibling.style.pointerEvents = 'none';
+      nextSibling.style.userSelect = 'none';
+      nextSibling.style.pointerEvents = 'none';
+
+      const dx = e.clientX - x;
+      const dy = e.clientY - y;
+      const newPrevSiblingHeight = ((prevSiblingHeight + dy) * 100) / resizer.parentNode.getBoundingClientRect().height;
+      if(newPrevSiblingHeight > 3 && newPrevSiblingHeight < 97){
+        prevSibling.style.height = `${newPrevSiblingHeight}%`;
+      }
+    }
+    function stopResize() {
+      resizer.style.removeProperty('cursor');
+      document.body.style.removeProperty('cursor');
+      prevSibling.style.removeProperty('user-select');
+      prevSibling.style.removeProperty('pointer-events');
+      nextSibling.style.removeProperty('user-select');
+      nextSibling.style.removeProperty('pointer-events');
+      document.removeEventListener('mousemove', handleResize);
+      document.removeEventListener('mouseup', stopResize);
+    }
+  }      
+
+/**
+ * Sets up an event listener for a form submission.
+ * Prevents the default form submission action and extracts the form data.
+ * The data is then processed and used to update a graph.
+ * Alerts the user if the input format is invalid.
+ * 
+ * @listens submit - The event that triggers the function.
+ * @event 
+ *
+ * @param {Event} event - The submit event object.
+ * @returns {undefined}
+ *
+ * @throws {SyntaxError} If JSON.parse fails to parse the input data.
+ *
+ * @property {FormData} formData - The form's data, extracted using the FormData interface.
+ * @property {Array} data - The parsed input data, expected to be an array of objects.
+ * @property {string} type - The type of chart to be generated.
+ * @property {string} stroke - The stroke input from the form.
+ * @property {string} color - The color input for the bar chart from the form.
+ * @property {boolean} projection - The projection status, converted to boolean.
+ */
 const form = document.querySelector('#my-form');
 form.addEventListener('submit', function(event) {
   event.preventDefault(); // prevent the default form submission behavior
@@ -560,7 +693,21 @@ form.addEventListener('submit', function(event) {
 });
 
 
-//which component in the sidebar should be hidden or show----------------------------------------------------------------------------
+/**
+ * Sets up a 'change' event listener for a chart type selector.
+ *
+ * When the chart type selector's value changes, this listener checks the new value and adjusts
+ * the display properties of the bar chart color selector, step selector, and line chart color selector.
+ * Different chart types require different selectors to be visible.
+ *
+ * @listens change - The event that triggers the function.
+ * @event
+ *
+ * @property {HTMLElement} chartTypeSelect - The HTML select element for choosing the chart type.
+ * @property {HTMLElement} colorSelect - The HTML element representing the barchart color selector, which is shown or hidden based on the chart type.
+ * @property {HTMLElement} stepSelect - The HTML element representing the step selector, which is shown or hidden based on the chart type.
+ * @property {HTMLElement} lineChartColorSelect - The HTML element representing the line chart color selector, which is shown or hidden based on the chart type.
+ */
 const chartTypeSelect = document.getElementById('chart-type');
 const colorSelect = document.getElementById('color-change');
 const stepSelect = document.getElementById('step-change');

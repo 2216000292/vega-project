@@ -260,6 +260,7 @@ textarea {
 .main-chart{
   flex: 1 1 0%;
   padding: 10px;
+  overflow: hidden;
 }
 
 .projection-chart{
