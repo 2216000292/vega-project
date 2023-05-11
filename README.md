@@ -3,8 +3,8 @@
 
 
 
-<h4>Please see usage instructions in [Sample PDF](./sample_datasets.pdf)</h4>
-
+Please see usage instructions in [Sample PDF](./sample_datasets.pdf)
+[Sample PDF](./sample_datasets.pdf)
 
 <h4>Structure Overview</h4>
 <img width="624" alt="image" src="https://user-images.githubusercontent.com/65697537/236144845-18f4e909-1b20-4fb3-ae50-dd29e9225d53.png">
