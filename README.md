@@ -14,5 +14,5 @@ Please see usage instructions [here](./Getting_started.pdf)
 ## Structure Overview
 <img width="624" alt="image" src="https://user-images.githubusercontent.com/65697537/236144845-18f4e909-1b20-4fb3-ae50-dd29e9225d53.png">
 The above image shows the primary order of function calls in the JavaScript part of the program. <br>
-For code document, please refer to https://2216000292.github.io/vega-project/out/index.html
+For code documentation, please refer to https://2216000292.github.io/vega-project/out/index.html
 
