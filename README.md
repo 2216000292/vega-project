@@ -5,7 +5,7 @@
 
 Demo: https://2216000292.github.io/vega-project/test.html
 
-Please see usage instructions [here](./sample_datasets.pdf)
+Please see usage instructions [here](./Getting_started.pdf)
 
 <br>
 
