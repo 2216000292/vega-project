@@ -4,7 +4,6 @@
 
 
 <h4>Getting Started</h4>
-Please copy the following datasets and paste them into the input field.
 https://2216000292.github.io/vega-project/test.html
 
 [Sample PDF](./sample_datasets.pdf)
